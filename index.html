@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manabi — Belajar Bahasa Jepang</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --red:#CC0000; --white:#FFFFFF; --off-white:#F5F3F0; --black:#111111; --gray:#777777; --gray-light:#E0DDDA; }
+  body { font-family:'DM Sans',sans-serif; background:var(--off-white); color:var(--black); min-height:100vh; }
+
+  .page { display:none; }
+  .page.active { display:block; animation:fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  /* HEADER */
+  .header { background:var(--red); color:var(--white); position:relative; overflow:hidden; }
+  .header-menu { padding:44px 24px 36px; }
+  .header-inner { padding:36px 24px 28px; }
+  .back-btn { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:rgba(255,255,255,0.8); cursor:pointer; background:none; border:none; padding:0; font-family:'DM Sans',sans-serif; margin-bottom:14px; transition:opacity 0.15s; }
+  .back-btn:hover { opacity:0.6; }
+  .header-jp-label { font-family:'Noto Serif JP',serif; font-size:12px; letter-spacing:0.2em; opacity:0.7; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+  .header-jp-label::before { content:''; display:inline-block; width:24px; height:1px; background:rgba(255,255,255,0.5); }
+  .app-name { font-family:'DM Serif Display',serif; font-size:56px; font-weight:400; line-height:0.9; letter-spacing:-0.02em; }
+  .app-name span { font-style:italic; opacity:0.85; }
+  .app-tagline { margin-top:12px; font-size:13px; font-weight:300; letter-spacing:0.06em; opacity:0.75; }
+  .page-title { font-family:'DM Serif Display',serif; font-size:40px; font-weight:400; line-height:1; letter-spacing:-0.01em; }
+  .page-title span { font-style:italic; opacity:0.85; }
+  .page-sub { font-size:12px; opacity:0.65; margin-top:8px; letter-spacing:0.08em; font-family:'Noto Serif JP',serif; }
+  .kanji-deco { font-family:'Noto Serif JP',serif; font-weight:900; color:rgba(255,255,255,0.08); position:absolute; right:16px; bottom:-14px; line-height:1; user-select:none; }
+  .review-pill { display:inline-flex; align-items:center; gap:8px; margin-top:20px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:100px; padding:7px 16px; font-size:13px; font-weight:500; }
+  .review-pill .dot { width:8px; height:8px; background:#FFD700; border-radius:50%; box-shadow:0 0 6px #FFD700; }
+  .divider-bar { background:var(--black); height:4px; }
+
+  /* MAIN */
+  .main { padding:28px 20px 100px; max-width:520px; margin:0 auto; }
+  .section-label { font-size:10px; font-weight:600; letter-spacing:0.25em; text-transform:uppercase; color:var(--gray); margin-bottom:16px; }
+
+  /* MENU */
+  .menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:32px; }
+  .menu-card { background:var(--white); border:2px solid transparent; border-radius:2px; padding:32px 16px 28px; cursor:pointer; position:relative; transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s; display:flex; flex-direction:column; align-items:center; text-align:center; min-height:160px; justify-content:center; gap:12px; }
+  .menu-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,0.12); border-color:var(--red); }
+  .menu-card.srs { border-color:var(--red); }
+  .card-kanji { font-family:'Noto Serif JP',serif; font-size:48px; font-weight:700; line-height:1; color:var(--black); transition:color 0.15s; }
+  .menu-card.srs .card-kanji,.menu-card:hover .card-kanji { color:var(--red); }
+  .card-body { display:flex; flex-direction:column; gap:4px; }
+  .card-title { font-family:'DM Serif Display',serif; font-size:20px; font-weight:400; line-height:1.1; }
+  .card-desc { font-size:11px; color:var(--gray); line-height:1.4; }
+  .card-badge { position:absolute; top:14px; right:14px; background:var(--red); color:white; font-size:11px; font-weight:600; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+
+  /* STATS */
+  .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .stat-card { background:var(--white); padding:20px 12px; text-align:center; border-radius:2px; }
+  .stat-num { font-family:'DM Serif Display',serif; font-size:36px; color:var(--red); line-height:1; display:block; }
+  .stat-label { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray); margin-top:4px; display:block; }
+
+  /* EMPTY */
+  .empty-state { text-align:center; padding:64px 24px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .empty-kanji { font-family:'Noto Serif JP',serif; font-size:64px; color:var(--gray-light); line-height:1; }
+  .empty-title { font-family:'DM Serif Display',serif; font-size:22px; color:var(--gray); font-weight:400; }
+  .empty-desc { font-size:13px; color:var(--gray); line-height:1.6; max-width:240px; }
+
+  /* CARDS */
+  .item-list { display:flex; flex-direction:column; gap:12px; }
+  .item-card { background:var(--white); border:2px solid transparent; padding:18px 16px; display:flex; align-items:center; gap:14px; animation:fadeUp 0.3s ease both; transition:border-color 0.15s,box-shadow 0.15s; }
+  .item-card:hover { border-color:var(--gray-light); box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+  .item-left { flex:1; min-width:0; }
+  .item-name { font-family:'Noto Serif JP',serif; font-size:20px; font-weight:700; color:var(--black); margin-bottom:4px; }
+  .item-sub { font-size:12px; color:var(--gray); line-height:1.5; }
+  .item-sub2 { font-size:13px; color:var(--black); margin-top:3px; }
+  .item-meta { font-size:10px; color:var(--gray); letter-spacing:0.08em; margin-top:6px; text-transform:uppercase; }
+  .item-actions { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+  .action-btn { width:34px; height:34px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; transition:background 0.15s,transform 0.1s; border-radius:2px; background:var(--off-white); }
+  .action-btn.edit:hover { background:#FFF3CD; transform:scale(1.1); }
+  .action-btn.hapus:hover { background:#FFE5E5; transform:scale(1.1); }
+  .item-arrow { font-size:16px; color:var(--gray-light); flex-shrink:0; cursor:pointer; transition:color 0.15s,transform 0.15s; padding:8px 4px; }
+  .item-arrow:hover { color:var(--red); transform:translateX(3px); }
+
+  /* DETAIL */
+  .rincian-box { background:var(--white); padding:20px; border-left:4px solid var(--red); margin-bottom:28px; }
+  .rincian-text { font-size:14px; line-height:1.8; }
+  .contoh-card { background:var(--white); border:2px solid transparent; padding:18px 16px; display:flex; align-items:flex-start; gap:12px; animation:fadeUp 0.3s ease both; transition:border-color 0.15s; }
+  .contoh-card:hover { border-color:var(--gray-light); }
+  .contoh-left { flex:1; min-width:0; }
+  .contoh-jp { font-family:'Noto Serif JP',serif; font-size:17px; font-weight:700; margin-bottom:5px; }
+  .contoh-id { font-size:13px; color:var(--gray); margin-bottom:4px; }
+  .contoh-alt { font-size:11px; font-style:italic; color:var(--gray); }
+  .contoh-alt strong { font-style:normal; }
+
+  /* FAB */
+  .fab { position:fixed; bottom:32px; right:50%; transform:translateX(50%); background:var(--red); color:var(--white); border:none; padding:14px 32px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:10px; letter-spacing:0.05em; box-shadow:4px 4px 0 var(--black); transition:transform 0.15s,box-shadow 0.15s; z-index:100; }
+  .fab:hover { transform:translateX(50%) translateY(-2px); box-shadow:4px 6px 0 var(--black); }
+  .fab:active { transform:translateX(50%) translateY(0); box-shadow:2px 2px 0 var(--black); }
+  .fab-icon { font-size:20px; font-weight:300; line-height:1; }
+
+  /* MODAL */
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .overlay.active { opacity:1; pointer-events:all; }
+  .modal { background:var(--white); width:100%; max-width:520px; padding:32px 24px 40px; border-top:4px solid var(--red); transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.32,0,0.67,0); }
+  .overlay.active .modal { transform:translateY(0); transition:transform 0.3s cubic-bezier(0.33,1,0.68,1); }
+  .modal-title { font-family:'DM Serif Display',serif; font-size:26px; font-weight:400; margin-bottom:24px; }
+  .modal-title span { font-style:italic; color:var(--red); }
+  .field-group { display:flex; flex-direction:column; gap:6px; margin-bottom:18px; }
+  .field-label { font-size:11px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--gray); }
+  .field-input { border:2px solid var(--gray-light); background:var(--off-white); padding:12px 14px; font-family:'Noto Serif JP',serif; font-size:18px; color:var(--black); outline:none; transition:border-color 0.15s; width:100%; }
+  .field-input.latin { font-family:'DM Sans',sans-serif; font-size:15px; }
+  .field-input:focus { border-color:var(--red); }
+  .field-textarea { border:2px solid var(--gray-light); background:var(--off-white); padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--black); outline:none; transition:border-color 0.15s; width:100%; resize:vertical; min-height:100px; line-height:1.6; }
+  .field-textarea:focus { border-color:var(--red); }
+  .modal-actions { display:flex; gap:10px; margin-top:24px; }
+  .btn-simpan { flex:1; background:var(--red); color:var(--white); border:2px solid var(--red); padding:13px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.15s; }
+  .btn-simpan:hover { opacity:0.85; }
+  .btn-batal { flex:1; background:transparent; color:var(--black); border:2px solid var(--black); padding:13px; font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; transition:background 0.15s; }
+  .btn-batal:hover { background:var(--off-white); }
+
+  /* KONFIRMASI */
+  .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+  .confirm-overlay.active { opacity:1; pointer-events:all; }
+  .confirm-box { background:var(--white); border-top:4px solid var(--red); padding:28px 24px; max-width:320px; width:100%; text-align:center; }
+  .confirm-box h3 { font-family:'DM Serif Display',serif; font-size:22px; font-weight:400; margin-bottom:10px; }
+  .confirm-box p { font-size:13px; color:var(--gray); margin-bottom:24px; line-height:1.5; }
+  .confirm-actions { display:flex; gap:10px; }
+  .btn-hapus-ok { flex:1; background:var(--red); color:white; border:2px solid var(--red); padding:12px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
+  .btn-hapus-batal { flex:1; background:transparent; color:var(--black); border:2px solid var(--black); padding:12px; font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; }
+
+  /* FOOTER */
+  .footer { background:var(--black); color:rgba(255,255,255,0.4); padding:18px 24px; font-size:11px; letter-spacing:0.1em; display:flex; justify-content:space-between; align-items:center; }
+  .footer strong { color:var(--white); font-family:'DM Serif Display',serif; font-size:15px; font-weight:400; letter-spacing:0; }
+
+
+
+
+
+
+  /* ══ SPLASH SCREEN ══ */
+  #splashScreen {
+    position: fixed; inset: 0; background: var(--red);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  #splashScreen.hide {
+    opacity: 0; transform: scale(1.05); pointer-events: none;
+  }
+  .splash-kanji {
+    font-family: 'Noto Serif JP', serif; font-weight: 900;
+    font-size: 96px; color: rgba(255,255,255,0.12);
+    position: absolute; bottom: 40px; right: 24px;
+    line-height: 1; user-select: none;
+    animation: splashKanji 1.2s ease both;
+  }
+  .splash-content {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    animation: splashIn 0.7s cubic-bezier(0.33,1,0.68,1) both;
+  }
+  .splash-title {
+    font-family: 'DM Serif Display', serif; font-size: 72px; font-weight: 400;
+    color: white; line-height: 0.9; letter-spacing: -0.02em;
+  }
+  .splash-title span { font-style: italic; opacity: 0.8; }
+  .splash-sub {
+    font-family: 'Noto Serif JP', serif; font-size: 13px;
+    color: rgba(255,255,255,0.6); letter-spacing: 0.25em;
+  }
+  .splash-dot-wrap {
+    display: flex; gap: 8px; margin-top: 48px;
+  }
+  .splash-dot {
+    width: 8px; height: 8px; background: rgba(255,255,255,0.4);
+    border-radius: 50%; animation: splashDot 1.2s ease infinite;
+  }
+  .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+  .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes splashIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes splashKanji {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes splashDot {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.3); }
+  }
+
+  /* ══ DARK MODE ══ */
+  body.dark { background: #0f0f13; color: #e5e5e5; }
+  body.dark .header { background: #1a0000; }
+  body.dark .divider-bar { background: #333; }
+  body.dark .menu-card { background: #1e1e26; border-color: transparent; color: #e5e5e5; }
+  body.dark .menu-card:hover { border-color: var(--red); background: #252530; }
+  body.dark .menu-card.srs { border-color: var(--red); }
+  body.dark .card-kanji { color: #e5e5e5; }
+  body.dark .card-desc { color: #888; }
+  body.dark .stat-card { background: #1e1e26; }
+  body.dark .footer { background: #0a0a0d; }
+  body.dark .item-card { background: #1e1e26; border-color: transparent; }
+  body.dark .item-card:hover { border-color: #333; }
+  body.dark .item-name { color: #e5e5e5; }
+  body.dark .item-sub { color: #888; }
+  body.dark .item-sub2 { color: #ccc; }
+  body.dark .item-meta { color: #666; }
+  body.dark .action-btn { background: #2a2a35; }
+  body.dark .action-btn.edit:hover { background: #3a3010; }
+  body.dark .action-btn.hapus:hover { background: #3a1010; }
+  body.dark .rincian-box { background: #1e1e26; }
+  body.dark .rincian-text { color: #e5e5e5; }
+  body.dark .contoh-card { background: #1e1e26; }
+  body.dark .contoh-jp { color: #e5e5e5; }
+  body.dark .contoh-id { color: #888; }
+  body.dark .contoh-alt { color: #666; }
+  body.dark .section-label { color: #666; }
+  body.dark .empty-kanji { color: #2a2a35; }
+  body.dark .empty-title { color: #555; }
+  body.dark .empty-desc { color: #555; }
+  body.dark .modal { background: #1e1e26; }
+  body.dark .modal-title { color: #e5e5e5; }
+  body.dark .field-input { background: #13131a; border-color: #333; color: #e5e5e5; }
+  body.dark .field-textarea { background: #13131a; border-color: #333; color: #e5e5e5; }
+  body.dark .btn-batal { color: #e5e5e5; border-color: #555; }
+  body.dark .btn-batal:hover { background: #2a2a35; }
+  body.dark .confirm-box { background: #1e1e26; }
+  body.dark .confirm-box h3 { color: #e5e5e5; }
+  body.dark .btn-hapus-batal { color: #e5e5e5; border-color: #555; }
+  body.dark .stat-box { background: #1e1e26; }
+  body.dark .stat-box-label { color: #666; }
+  body.dark .srs-level-box { background: #1e1e26; }
+  body.dark .srs-level-label { color: #666; }
+  body.dark .riwayat-item { background: #1e1e26; }
+  body.dark .riwayat-tgl { color: #666; }
+  body.dark .riwayat-empty { background: #1e1e26; color: #555; }
+  body.dark .streak-box { background: #0a0a0d; }
+
+  /* ══ PENGATURAN ══ */
+  .peng-section { margin-bottom: 32px; }
+  .peng-item { background: var(--white); padding: 18px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2px; }
+  body.dark .peng-item { background: #1e1e26; }
+  .peng-item-left { flex: 1; }
+  .peng-item-title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .peng-item-desc { font-size: 12px; color: var(--gray); }
+  body.dark .peng-item-desc { color: #666; }
+
+  /* Toggle switch */
+  .toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--gray-light); border-radius: 100px; cursor: pointer; transition: background 0.2s; }
+  .toggle-slider::before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+  .toggle input:checked + .toggle-slider { background: var(--red); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+  .peng-btn { background: var(--off-white); border: 2px solid var(--gray-light); color: var(--black); padding: 10px 20px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; white-space:nowrap; flex-shrink:0; }
+  body.dark .peng-btn { background: #2a2a35; border-color: #444; color: #e5e5e5; }
+  .peng-btn:hover { border-color: var(--red); color: var(--red); }
+  .peng-btn.danger { border-color: #fca5a5; color: #dc2626; background: #fff5f5; }
+  body.dark .peng-btn.danger { background: #2a1515; border-color: #7f1d1d; color: #fca5a5; }
+  .peng-btn.success { border-color: #86efac; color: #16a34a; background: #f0fdf4; }
+  body.dark .peng-btn.success { background: #0f2a1a; }
+
+  .peng-export-box { background: var(--off-white); border: 2px solid var(--gray-light); padding: 14px; font-family: monospace; font-size: 11px; color: var(--gray); max-height: 120px; overflow: auto; word-break: break-all; margin-top: 8px; display: none; }
+  body.dark .peng-export-box { background: #13131a; border-color: #333; color: #888; }
+
+
+
+  /* ══ SPLASH SCREEN ══ */
+  #splashScreen {
+    position: fixed; inset: 0; background: var(--red);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  #splashScreen.hide {
+    opacity: 0; transform: scale(1.05); pointer-events: none;
+  }
+  .splash-kanji {
+    font-family: 'Noto Serif JP', serif; font-weight: 900;
+    font-size: 96px; color: rgba(255,255,255,0.12);
+    position: absolute; bottom: 40px; right: 24px;
+    line-height: 1; user-select: none;
+    animation: splashKanji 1.2s ease both;
+  }
+  .splash-content {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    animation: splashIn 0.7s cubic-bezier(0.33,1,0.68,1) both;
+  }
+  .splash-title {
+    font-family: 'DM Serif Display', serif; font-size: 72px; font-weight: 400;
+    color: white; line-height: 0.9; letter-spacing: -0.02em;
+  }
+  .splash-title span { font-style: italic; opacity: 0.8; }
+  .splash-sub {
+    font-family: 'Noto Serif JP', serif; font-size: 13px;
+    color: rgba(255,255,255,0.6); letter-spacing: 0.25em;
+  }
+  .splash-dot-wrap {
+    display: flex; gap: 8px; margin-top: 48px;
+  }
+  .splash-dot {
+    width: 8px; height: 8px; background: rgba(255,255,255,0.4);
+    border-radius: 50%; animation: splashDot 1.2s ease infinite;
+  }
+  .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+  .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes splashIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes splashKanji {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes splashDot {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.3); }
+  }
+
+  /* ══ DARK MODE ══ */
+  body.dark {
+    --white: #1e1e2e;
+    --off-white: #181824;
+    --black: #e2e2f0;
+    --gray: #9090b0;
+    --gray-light: #333350;
+  }
+  body.dark .header { background: #0f0f1a; }
+  body.dark .divider-bar { background: #6366f1; }
+  body.dark .footer { background: #0a0a14; }
+  body.dark .menu-card { background: #1e1e2e; }
+  body.dark .stat-card { background: #1e1e2e; }
+  body.dark .item-card  { background: #1e1e2e; }
+  body.dark .contoh-card { background: #1e1e2e; }
+  body.dark .rincian-box { background: #1e1e2e; }
+  body.dark .stat-box { background: #1e1e2e; }
+  body.dark .srs-level-box { background: #1e1e2e; }
+  body.dark .streak-box { background: #0a0a14; }
+  body.dark .riwayat-item { background: #1e1e2e; }
+  body.dark .riwayat-empty { background: #1e1e2e; }
+  body.dark .modal { background: #1e1e2e; }
+  body.dark .field-input { background: #12121e; border-color: #333350; color: #e2e2f0; }
+  body.dark .field-textarea { background: #12121e; border-color: #333350; color: #e2e2f0; }
+  body.dark .confirm-box { background: #1e1e2e; }
+  body.dark .pengaturan-item { background: #1e1e2e; }
+  body.dark .pengaturan-item:hover { background: #25253a; }
+
+  /* ══ PENGATURAN ══ */
+  .pengaturan-list { display: flex; flex-direction: column; gap: 1px; }
+  .pengaturan-item { background: var(--white); padding: 18px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.15s; }
+  .pengaturan-item:hover { background: #f0eeed; }
+  .pengaturan-item-left { display: flex; align-items: center; gap: 14px; }
+  .pengaturan-icon { font-size: 22px; width: 36px; text-align: center; }
+  .pengaturan-label { font-size: 15px; font-weight: 500; }
+  .pengaturan-desc { font-size: 12px; color: var(--gray); margin-top: 2px; }
+  .pengaturan-right { display: flex; align-items: center; gap: 8px; color: var(--gray); font-size: 13px; }
+
+  /* TOGGLE SWITCH */
+  .toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--gray-light); border-radius: 100px; transition: background 0.2s; cursor: pointer; }
+  .toggle-slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+  .toggle input:checked + .toggle-slider { background: var(--red); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+  .export-result { background: var(--off-white); border: 2px solid var(--gray-light); padding: 14px; margin-top: 12px; font-size: 11px; font-family: monospace; color: var(--gray); word-break: break-all; display: none; max-height: 120px; overflow-y: auto; }
+  .btn-pengaturan { width: 100%; padding: 14px; background: var(--red); color: white; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .btn-pengaturan:hover { opacity: 0.85; }
+  .btn-pengaturan.secondary { background: transparent; color: var(--black); border: 2px solid var(--gray-light); }
+  .btn-pengaturan.secondary:hover { background: var(--off-white); opacity: 1; }
+  .import-area { border: 2px dashed var(--gray-light); padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.15s; margin-top: 12px; }
+  .import-area:hover { border-color: var(--red); }
+  .import-area p { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
+
+  /* ══ STATISTIK ══ */
+  .stat-section { margin-bottom: 32px; }
+  .stat-grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+  .stat-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .stat-box { background: var(--white); padding: 20px 16px; text-align: center; }
+  .stat-box-num { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--red); line-height: 1; display: block; }
+  .stat-box-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray); margin-top: 6px; display: block; line-height: 1.4; }
+  .stat-box.indigo .stat-box-num { color: #6366f1; }
+  .stat-box.green  .stat-box-num { color: #16a34a; }
+  .stat-box.amber  .stat-box-num { color: #d97706; }
+
+  .srs-level-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .srs-level-box { padding: 16px 10px; text-align: center; border-left: 4px solid transparent; background: var(--white); }
+  .srs-level-box.baru   { border-color: #94a3b8; }
+  .srs-level-box.belajar{ border-color: #f59e0b; }
+  .srs-level-box.mahir  { border-color: #22c55e; }
+  .srs-level-num { font-family: 'DM Serif Display', serif; font-size: 32px; line-height: 1; display: block; }
+  .srs-level-box.baru    .srs-level-num { color: #94a3b8; }
+  .srs-level-box.belajar .srs-level-num { color: #f59e0b; }
+  .srs-level-box.mahir   .srs-level-num { color: #22c55e; }
+  .srs-level-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray); margin-top: 5px; display: block; }
+
+  .streak-box { background: var(--black); padding: 24px 20px; display: flex; align-items: center; gap: 20px; }
+  .streak-flame { font-size: 48px; line-height: 1; }
+  .streak-info { flex: 1; }
+  .streak-num { font-family: 'DM Serif Display', serif; font-size: 48px; color: #FFD700; line-height: 1; }
+  .streak-label { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+  .riwayat-list { display: flex; flex-direction: column; gap: 8px; }
+  .riwayat-item { background: var(--white); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .riwayat-tgl { font-size: 12px; color: var(--gray); }
+  .riwayat-skor { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--red); }
+  .riwayat-detail { font-size: 11px; color: var(--gray); text-align: right; }
+  .riwayat-empty { text-align: center; padding: 32px; color: var(--gray); font-size: 13px; background: var(--white); }
+
+  /* ══ SRS ══ */
+  #page-srs { background: #12141a; min-height: 100vh; }
+  .srs-wrap { max-width: 520px; margin: 0 auto; padding: 24px 20px 40px; display: flex; flex-direction: column; min-height: 100vh; }
+  .srs-header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+  .srs-back { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 22px; cursor: pointer; padding: 4px; line-height: 1; }
+  .srs-progress-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; }
+  .srs-progress-fill { height: 100%; background: #6366f1; border-radius: 100px; transition: width 0.4s ease; }
+  .srs-counter { font-size: 13px; color: rgba(255,255,255,0.4); white-space: nowrap; }
+
+  .srs-label { display: inline-flex; align-items: center; gap: 6px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #a5b4fc; text-transform: uppercase; margin-bottom: 16px; }
+  .srs-label .dot { width: 6px; height: 6px; background: #6366f1; border-radius: 50%; }
+  .srs-instruksi { font-size: 22px; font-weight: 600; color: var(--white); margin-bottom: 28px; }
+  .srs-soal-box { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px 20px; margin-bottom: 28px; }
+  .srs-soal-text { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 700; color: var(--white); line-height: 1.5; }
+  .srs-soal-text.latin { font-family: 'DM Sans', sans-serif; font-size: 18px; }
+
+  .srs-jawaban-area { min-height: 52px; border-bottom: 2px solid rgba(255,255,255,0.15); margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px; }
+  .srs-opsi-wrap { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+
+  .srs-feedback { border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: none; }
+  .srs-feedback.benar { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); }
+  .srs-feedback.salah { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); }
+  .srs-feedback-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .srs-feedback.benar .srs-feedback-title { color: #86efac; }
+  .srs-feedback.salah .srs-feedback-title { color: #fca5a5; }
+  .srs-feedback-text { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+  .srs-btn-periksa { width: 100%; padding: 16px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.3); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.1em; cursor: not-allowed; border-radius: 12px; transition: all 0.2s; margin-top: auto; }
+  .srs-btn-periksa.aktif { background: #6366f1; border-color: #6366f1; color: white; cursor: pointer; }
+  .srs-btn-periksa.aktif:hover { opacity: 0.9; }
+  .srs-btn-periksa.lanjut { background: rgba(34,197,94,0.7); border-color: transparent; color: white; cursor: pointer; }
+
+  .srs-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 14px; text-align: center; }
+  .srs-empty-icon { font-size: 56px; }
+  .srs-empty-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: rgba(255,255,255,0.8); font-weight: 400; }
+  .srs-empty-desc { font-size: 13px; color: rgba(255,255,255,0.4); max-width: 240px; line-height: 1.6; }
+  .srs-empty-btn { background: #6366f1; color: white; border: none; padding: 13px 28px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; margin-top: 8px; }
+
+  .srs-hasil { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 10px; text-align: center; }
+  .srs-hasil-skor { font-family: 'DM Serif Display', serif; font-size: 72px; color: var(--white); line-height: 1; }
+  .srs-hasil-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .srs-hasil-pesan { font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+  .srs-interval-info { font-size: 12px; color: #a5b4fc; margin-top: 4px; }
+  .srs-hasil-btn { border: none; padding: 14px 32px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; margin-top: 12px; }
+
+  /* ══ KUIS ══ */
+  #page-kuis { background: #1a1a2e; min-height: 100vh; }
+  .kuis-wrap { max-width: 520px; margin: 0 auto; padding: 24px 20px 40px; display: flex; flex-direction: column; min-height: 100vh; }
+  .kuis-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .kuis-back { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 22px; cursor: pointer; padding: 4px; line-height: 1; }
+  .kuis-progress-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.15); border-radius: 100px; overflow: hidden; }
+  .kuis-progress-fill { height: 100%; background: var(--red); border-radius: 100px; transition: width 0.4s ease; }
+  .kuis-counter { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; white-space: nowrap; }
+
+  .kuis-label { display: inline-flex; align-items: center; gap: 6px; background: rgba(204,0,0,0.25); border: 1px solid rgba(204,0,0,0.4); border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #ff6b6b; text-transform: uppercase; margin-bottom: 16px; }
+  .kuis-label .dot { width: 6px; height: 6px; background: #ff6b6b; border-radius: 50%; }
+
+  .kuis-instruksi { font-size: 22px; font-weight: 600; color: var(--white); margin-bottom: 28px; line-height: 1.3; }
+
+  .kuis-soal-box { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 24px 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 16px; }
+  .kuis-soal-text { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 700; color: var(--white); line-height: 1.4; flex: 1; }
+  .kuis-soal-text.latin { font-family: 'DM Sans', sans-serif; font-size: 18px; }
+
+  .kuis-jawaban-area { min-height: 56px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px; }
+  .kuis-jawaban-area2 { min-height: 56px; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 28px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px; }
+
+  .kata-chip { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); border-radius: 100px; padding: 9px 16px; font-size: 14px; font-weight: 500; color: var(--white); cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s; user-select: none; font-family: 'DM Sans', sans-serif; min-width: 64px; text-align: center; }
+  .kata-chip.jp { font-family: 'Noto Serif JP', serif; }
+  .kata-chip:hover { background: rgba(255,255,255,0.2); transform: scale(1.04); }
+  .kata-chip.terpilih { background: rgba(204,0,0,0.3); border-color: rgba(204,0,0,0.6); }
+  .kata-chip.benar { background: rgba(34,197,94,0.25); border-color: rgba(34,197,94,0.6); color: #86efac; pointer-events: none; }
+  .kata-chip.salah { background: rgba(239,68,68,0.25); border-color: rgba(239,68,68,0.6); color: #fca5a5; pointer-events: none; }
+  .kata-chip.disabled { opacity: 0.3; pointer-events: none; }
+
+  .kuis-opsi-wrap { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; flex: 1; align-items: flex-start; align-content: flex-start; }
+  .pilgan-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; flex: 1; }
+  .pilgan-chip { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 14px 18px; font-size: 15px; font-weight: 500; color: var(--white); cursor: pointer; transition: background 0.15s, border-color 0.15s; user-select: none; font-family: 'Noto Serif JP', serif; text-align: left; }
+  .pilgan-chip:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.3); }
+  .pilgan-chip.terpilih { background: rgba(204,0,0,0.2); border-color: rgba(204,0,0,0.5); }
+  .pilgan-chip.benar { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); color: #86efac; pointer-events: none; }
+  .pilgan-chip.salah { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); color: #fca5a5; pointer-events: none; }
+
+  .kuis-feedback { border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: none; }
+  .kuis-feedback.benar { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); }
+  .kuis-feedback.salah { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); }
+  .kuis-feedback-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .kuis-feedback.benar .kuis-feedback-title { color: #86efac; }
+  .kuis-feedback.salah .kuis-feedback-title { color: #fca5a5; }
+  .kuis-feedback-text { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+  .kuis-btn-periksa { width: 100%; padding: 16px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.4); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.1em; cursor: not-allowed; border-radius: 12px; transition: all 0.2s; margin-top: auto; }
+  .kuis-btn-periksa.aktif { background: var(--red); border-color: var(--red); color: white; cursor: pointer; }
+  .kuis-btn-periksa.aktif:hover { opacity: 0.9; }
+  .kuis-btn-periksa.lanjut { background: rgba(34,197,94,0.8); border-color: transparent; color: white; cursor: pointer; }
+
+  .kuis-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 16px; text-align: center; color: rgba(255,255,255,0.5); }
+  .kuis-empty-icon { font-size: 56px; }
+  .kuis-empty-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: rgba(255,255,255,0.7); }
+  .kuis-empty-desc { font-size: 13px; max-width: 240px; line-height: 1.6; }
+  .kuis-empty-btn { background: var(--red); color: white; border: none; padding: 13px 28px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; margin-top: 8px; }
+
+  .kuis-hasil { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 12px; text-align: center; }
+  .kuis-hasil-skor { font-family: 'DM Serif Display', serif; font-size: 80px; color: var(--white); line-height: 1; }
+  .kuis-hasil-label { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; }
+  .kuis-hasil-pesan { font-size: 16px; color: rgba(255,255,255,0.8); margin-top: 8px; }
+  .kuis-hasil-btn { background: var(--red); color: white; border: none; padding: 14px 36px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 8px; margin-top: 16px; }
+
+  /* PILIHAN GANDA */
+  .pilgan-wrap { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .pilgan-chip { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 14px 18px; font-family: 'Noto Serif JP', serif; font-size: 15px; color: var(--white); cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; line-height: 1.5; }
+  .pilgan-chip:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.3); transform: translateX(4px); }
+  .pilgan-chip.terpilih { background: rgba(204,0,0,0.25); border-color: rgba(204,0,0,0.6); }
+  .pilgan-chip.benar { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.6); color: #86efac; pointer-events: none; }
+  .pilgan-chip.salah { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.6); color: #fca5a5; pointer-events: none; }
+
+  .menu-card:nth-child(1){animation:fadeUp .35s .08s ease both}
+  .menu-card:nth-child(2){animation:fadeUp .35s .13s ease both}
+  .menu-card:nth-child(3){animation:fadeUp .35s .18s ease both}
+  .menu-card:nth-child(4){animation:fadeUp .35s .23s ease both}
+  .menu-card:nth-child(5){animation:fadeUp .35s .28s ease both}
+  .menu-card:nth-child(6){animation:fadeUp .35s .33s ease both}
+</style>
+</head>
+<body>
+
+<div id="splashScreen">
+  <div class="splash-content">
+    <div class="splash-title">Man<span>abi</span></div>
+    <div class="splash-sub">まなび · Belajar Bahasa Jepang</div>
+    <div class="splash-dot-wrap">
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+    </div>
+  </div>
+  <div class="splash-kanji">学</div>
+</div>
+
+
+<!-- ══ MENU ══ -->
+<div class="page active" id="page-menu">
+  <header class="header header-menu">
+    <div class="header-jp-label">まなび · Belajar Bahasa Jepang</div>
+    <h1 class="app-name">Man<span>abi</span></h1>
+    <p class="app-tagline">Aplikasi belajar bahasa Jepang pribadimu</p>
+    <div class="review-pill"><span class="dot"></span><span id="reviewCount">0</span> kartu perlu direview</div>
+    <div class="kanji-deco" style="font-size:140px;">学</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+    <div class="section-label">Menu Utama</div>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="goTo('page-materi')">
+        <span class="card-kanji">文</span>
+        <div class="card-body"><div class="card-title">Materi</div><div class="card-desc">Pola kalimat & contoh</div></div>
+      </div>
+      <div class="menu-card" onclick="goTo('page-kosakata')">
+        <span class="card-kanji">語</span>
+        <div class="card-body"><div class="card-title">Kosakata</div><div class="card-desc">Daftar kosakata pribadi</div></div>
+      </div>
+      <div class="menu-card" onclick="goTo('page-kuis')">
+        <span class="card-kanji">問</span>
+        <div class="card-body"><div class="card-title">Kuis</div><div class="card-desc">Latihan terjemah JP↔ID</div></div>
+      </div>
+      <div class="menu-card srs" onclick="goTo('page-srs')">
+        <span class="card-badge" id="srsBadge">0</span>
+        <span class="card-kanji">繰</span>
+        <div class="card-body"><div class="card-title">SRS Review</div><div class="card-desc">Review kartu hari ini</div></div>
+      </div>
+      <div class="menu-card" onclick="goTo('page-statistik')">
+        <span class="card-kanji">統</span>
+        <div class="card-body"><div class="card-title">Statistik</div><div class="card-desc">Perkembangan belajar</div></div>
+      </div>
+      <div class="menu-card" onclick="goTo('page-pengaturan')">
+        <span class="card-kanji">設</span>
+        <div class="card-body"><div class="card-title">Pengaturan</div><div class="card-desc">Interval SRS & preferensi</div></div>
+      </div>
+    </div>
+    <div class="section-label">Statistik Belajar</div>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-num" id="statPola">0</span><span class="stat-label">Pola</span></div>
+      <div class="stat-card"><span class="stat-num" id="statKosakata">0</span><span class="stat-label">Kosakata</span></div>
+      <div class="stat-card"><span class="stat-num" id="statStreak">0</span><span class="stat-label">Streak</span></div>
+    </div>
+  </main>
+  <footer class="footer"><strong>Manabi</strong><span>まなび · Belajar dengan konsisten</span></footer>
+</div>
+
+<!-- ══ MATERI ══ -->
+<div class="page" id="page-materi">
+  <header class="header header-inner">
+    <button class="back-btn" onclick="goTo('page-menu')">← Kembali</button>
+    <h1 class="page-title">Ma<span>teri</span></h1>
+    <p class="page-sub">文法 · Pola Kalimat</p>
+    <div class="kanji-deco" style="font-size:110px;">文</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+    <div class="empty-state" id="emptyMateri">
+      <div class="empty-kanji">文</div>
+      <div class="empty-title">Belum ada materi</div>
+      <div class="empty-desc">Tekan + di bawah untuk menambahkan pola kalimat.</div>
+    </div>
+    <div class="item-list" id="polaList"></div>
+  </main>
+  <button class="fab" id="fabPola"><span class="fab-icon">+</span> Tambah Pola</button>
+</div>
+
+<!-- ══ DETAIL POLA ══ -->
+<div class="page" id="page-detail">
+  <header class="header header-inner">
+    <button class="back-btn" onclick="goTo('page-materi')">← Kembali</button>
+    <h1 class="page-title" id="detailNama"></h1>
+    <p class="page-sub">文法 · Detail Pola</p>
+    <div class="kanji-deco" style="font-size:110px;">例</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+    <div id="detailRincianWrap" style="display:none;">
+      <div class="section-label">Rincian</div>
+      <div class="rincian-box"><p class="rincian-text" id="detailRincianText"></p></div>
+    </div>
+    <div class="section-label">Contoh Kalimat</div>
+    <div class="empty-state" id="emptyContoh" style="padding:40px 0;">
+      <div class="empty-kanji" style="font-size:48px;">例</div>
+      <div class="empty-title" style="font-size:18px;">Belum ada contoh</div>
+      <div class="empty-desc">Tekan + Tambah Contoh untuk menambahkan.</div>
+    </div>
+    <div id="contohList" style="display:flex;flex-direction:column;gap:12px;"></div>
+  </main>
+  <button class="fab" id="fabContoh"><span class="fab-icon">+</span> Tambah Contoh</button>
+</div>
+
+<!-- ══ KOSAKATA ══ -->
+<div class="page" id="page-kosakata">
+  <header class="header header-inner">
+    <button class="back-btn" onclick="goTo('page-menu')">← Kembali</button>
+    <h1 class="page-title">Kosa<span>kata</span></h1>
+    <p class="page-sub">語彙 · Daftar Kosakata</p>
+    <div class="kanji-deco" style="font-size:110px;">語</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+    <div class="empty-state" id="emptyKosakata">
+      <div class="empty-kanji">語</div>
+      <div class="empty-title">Belum ada kosakata</div>
+      <div class="empty-desc">Tekan + di bawah untuk menambahkan kosakata.</div>
+    </div>
+    <div class="item-list" id="kosakatalist"></div>
+  </main>
+  <button class="fab" id="fabKosakata"><span class="fab-icon">+</span> Tambah Kosakata</button>
+</div>
+
+
+<!-- ══ KUIS ══ -->
+<div class="page" id="page-kuis">
+  <div class="kuis-wrap" id="kuisWrap">
+    <!-- diisi JS -->
+  </div>
+</div>
+
+<!-- ══ SRS ══ -->
+<div class="page" id="page-srs">
+  <div class="srs-wrap" id="srsWrap">
+    <!-- diisi JS -->
+  </div>
+</div>
+
+<!-- ══ STATISTIK ══ -->
+<div class="page" id="page-statistik">
+  <header class="header header-inner">
+    <button class="back-btn" onclick="goTo('page-menu')">← Kembali</button>
+    <h1 class="page-title">Sta<span>tistik</span></h1>
+    <p class="page-sub">統計 · Perkembangan Belajar</p>
+    <div class="kanji-deco" style="font-size:110px;">統</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+
+    <!-- Streak -->
+    <div class="stat-section">
+      <div class="section-label">Streak Harian</div>
+      <div class="streak-box">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-info">
+          <div class="streak-num" id="statStreakBesar">0</div>
+          <div class="streak-label">hari berturut-turut</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Materi -->
+    <div class="stat-section">
+      <div class="section-label">Materi</div>
+      <div class="stat-grid-3">
+        <div class="stat-box">
+          <span class="stat-box-num" id="s_pola">0</span>
+          <span class="stat-box-label">Pola Kalimat</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-num" id="s_contoh">0</span>
+          <span class="stat-box-label">Contoh Kalimat</span>
+        </div>
+        <div class="stat-box indigo">
+          <span class="stat-box-num" id="s_kosakata">0</span>
+          <span class="stat-box-label">Kosakata</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SRS Level -->
+    <div class="stat-section">
+      <div class="section-label">Kartu SRS</div>
+      <div class="srs-level-grid">
+        <div class="srs-level-box baru">
+          <span class="srs-level-num" id="s_srs_baru">0</span>
+          <span class="srs-level-label">Baru</span>
+        </div>
+        <div class="srs-level-box belajar">
+          <span class="srs-level-num" id="s_srs_belajar">0</span>
+          <span class="srs-level-label">Belajar</span>
+        </div>
+        <div class="srs-level-box mahir">
+          <span class="srs-level-num" id="s_srs_mahir">0</span>
+          <span class="srs-level-label">Mahir</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Riwayat Kuis -->
+    <div class="stat-section">
+      <div class="section-label">Riwayat Kuis</div>
+      <div class="riwayat-list" id="riwayatList">
+        <div class="riwayat-empty">Belum ada riwayat kuis</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ PENGATURAN ══ -->
+<div class="page" id="page-pengaturan">
+  <header class="header header-inner">
+    <button class="back-btn" onclick="goTo('page-menu')">← Kembali</button>
+    <h1 class="page-title">Peng<span>aturan</span></h1>
+    <p class="page-sub">設定 · Pengaturan App</p>
+    <div class="kanji-deco" style="font-size:110px;">設</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+
+    <!-- Tampilan -->
+    <div class="section-label">Tampilan</div>
+    <div class="pengaturan-list" style="margin-bottom:28px;">
+      <div class="pengaturan-item">
+        <div class="pengaturan-item-left">
+          <div class="pengaturan-icon">🌙</div>
+          <div>
+            <div class="pengaturan-label">Dark Mode</div>
+            <div class="pengaturan-desc">Tema gelap untuk belajar malam</div>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleDark" onchange="ubahDarkMode(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="pengaturan-item">
+        <div class="pengaturan-item-left">
+          <div class="pengaturan-icon">🔊</div>
+          <div>
+            <div class="pengaturan-label">Efek Suara</div>
+            <div class="pengaturan-desc">Suara benar/salah di kuis & SRS</div>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleSuara" onchange="ubahSuara(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Data -->
+    <div class="section-label">Data</div>
+    <div class="pengaturan-list" style="margin-bottom:28px;">
+      <div class="pengaturan-item" onclick="exportData()">
+        <div class="pengaturan-item-left">
+          <div class="pengaturan-icon">📤</div>
+          <div>
+            <div class="pengaturan-label">Export Data</div>
+            <div class="pengaturan-desc">Salin data JSON ke clipboard</div>
+          </div>
+        </div>
+        <div class="pengaturan-right">Salin →</div>
+      </div>
+      <div class="pengaturan-item" onclick="document.getElementById('importFileNew').click()">
+        <div class="pengaturan-item-left">
+          <div class="pengaturan-icon">📥</div>
+          <div>
+            <div class="pengaturan-label">Import Data</div>
+            <div class="pengaturan-desc">Muat dari file .json</div>
+          </div>
+        </div>
+        <div class="pengaturan-right">↑</div>
+      </div>
+      <input type="file" id="importFileNew" accept=".json" style="display:none" onchange="importData(this)">
+    </div>
+
+    <!-- Reset -->
+    <div class="section-label">Zona Bahaya</div>
+    <div class="pengaturan-list">
+      <div class="pengaturan-item" onclick="resetData()">
+        <div class="pengaturan-item-left">
+          <div class="pengaturan-icon">🗑️</div>
+          <div>
+            <div class="pengaturan-label" style="color:#dc2626;">Reset Statistik</div>
+            <div class="pengaturan-desc">Hapus riwayat kuis, streak & SRS. Pola & kosakata aman.</div>
+          </div>
+        </div>
+        <div class="pengaturan-right" style="color:#dc2626;">→</div>
+      </div>
+    </div>
+
+    <div id="importMsgNew" style="font-size:13px; color:var(--gray); margin-top:16px; text-align:center;"></div>
+
+  </main>
+</div>
+
+<!-- ══ COMING SOON ══ -->
+<div class="page" id="page-coming">
+  <header class="header header-inner">
+    <button class="back-btn" onclick="goTo('page-menu')">← Kembali</button>
+    <h1 class="page-title">Se<span>gera</span></h1>
+    <p class="page-sub">Halaman ini sedang disiapkan</p>
+    <div class="kanji-deco" style="font-size:110px;">後</div>
+  </header>
+  <div class="divider-bar"></div>
+  <main class="main">
+    <div class="empty-state">
+      <div class="empty-kanji">🚧</div>
+      <div class="empty-title">Segera hadir</div>
+      <div class="empty-desc">Halaman ini sedang dalam pengembangan.</div>
+    </div>
+  </main>
+</div>
+
+<!-- ══ MODAL: POLA ══ -->
+<div class="overlay" id="overlayPola">
+  <div class="modal">
+    <div class="modal-title" id="modalPolaTitle">Pola <span>Baru</span></div>
+    <div class="field-group">
+      <label class="field-label">Pola Kalimat</label>
+      <input class="field-input" id="inputPola" type="text" placeholder="〜たい、〜てください、dll" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Rincian / Penjelasan</label>
+      <textarea class="field-textarea" id="inputRincian" placeholder="Tulis penjelasan, arti, atau cara penggunaan..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-batal" id="btnBatalPola">Batal</button>
+      <button class="btn-simpan" id="btnSimpanPola">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CONTOH ══ -->
+<div class="overlay" id="overlayContoh">
+  <div class="modal">
+    <div class="modal-title" id="modalContohTitle">Contoh <span>Kalimat</span></div>
+    <div class="field-group">
+      <label class="field-label">Kalimat Jepang</label>
+      <input class="field-input" id="inputJP" type="text" placeholder="日本語で書いてください" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Terjemahan Indonesia</label>
+      <input class="field-input latin" id="inputID" type="text" placeholder="Tulis terjemahan utama..." autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Jawaban Alternatif <span style="font-weight:300;text-transform:none;letter-spacing:0;">(pisah koma)</span></label>
+      <input class="field-input latin" id="inputAlt" type="text" placeholder="makasih, terima kasih banyak, ..." autocomplete="off" style="font-size:13px;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-batal" id="btnBatalContoh">Batal</button>
+      <button class="btn-simpan" id="btnSimpanContoh">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: KOSAKATA ══ -->
+<div class="overlay" id="overlayKosakata">
+  <div class="modal">
+    <div class="modal-title" id="modalKosTitle">Kosakata <span>Baru</span></div>
+    <div class="field-group">
+      <label class="field-label">Kata Jepang</label>
+      <input class="field-input" id="inputKosJP" type="text" placeholder="例：ありがとう、食べる" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Romaji</label>
+      <input class="field-input latin" id="inputKosRomaji" type="text" placeholder="arigatou, taberu, ..." autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Arti Indonesia</label>
+      <input class="field-input latin" id="inputKosID" type="text" placeholder="terima kasih, makan, ..." autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-batal" id="btnBatalKos">Batal</button>
+      <button class="btn-simpan" id="btnSimpanKos">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KONFIRMASI HAPUS ══ -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Hapus?</h3>
+    <p id="confirmMsg">Yakin ingin menghapus ini?</p>
+    <div class="confirm-actions">
+      <button class="btn-hapus-batal" id="btnHapusBatal">Batal</button>
+      <button class="btn-hapus-ok" id="btnHapusOk">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════
+// DATA
+// ══════════════════════════════
+let polaData  = [];
+let kosakata  = [];
+let editingPolaId = null;
+let editingKosId    = null;
+let editingContohId  = null;
+let currentPolaId = null;
+
+// hapus state
+let hapusType     = null; // 'pola' | 'contoh' | 'kosakata'
+let hapusId       = null;
+let hapusContohId = null;
+
+// ══════════════════════════════
+// LOCALSTORAGE
+// ══════════════════════════════
+function simpanPola()     { localStorage.setItem('manabi_pola', JSON.stringify(polaData)); }
+function simpanKosakata() { localStorage.setItem('manabi_kosakata', JSON.stringify(kosakata)); }
+
+function muatSemua() {
+  // muat pola
+  try {
+    const sp = localStorage.getItem('manabi_pola');
+    if (sp) {
+      polaData = JSON.parse(sp);
+      polaData.forEach(item => _renderPolaCard(item));
+      if (polaData.length > 0) document.getElementById('emptyMateri').style.display = 'none';
+    }
+  } catch(e) {}
+
+  // muat kosakata
+  try {
+    const sk = localStorage.getItem('manabi_kosakata');
+    if (sk) {
+      kosakata = JSON.parse(sk);
+      kosakata.forEach(item => _renderKosCard(item));
+      if (kosakata.length > 0) document.getElementById('emptyKosakata').style.display = 'none';
+    }
+  } catch(e) {}
+
+  muatPengaturan();
+  muatSRS();
+  muatRiwayat();
+  muatStreak();
+  updateStats();
+  updateSRSBadge();
+}
+
+// ══════════════════════════════
+// NAVIGASI
+// ══════════════════════════════
+
+// ══════════════════════════════
+// STATS
+// ══════════════════════════════
+function updateStats() {
+  document.getElementById('statPola').textContent     = polaData.length;
+  document.getElementById('statKosakata').textContent = kosakata.length;
+}
+
+// ══════════════════════════════
+// MODAL HELPER
+// ══════════════════════════════
+function bukaOverlay(id) { document.getElementById(id).classList.add('active'); }
+function tutupOverlay(id) { document.getElementById(id).classList.remove('active'); }
+
+// ══════════════════════════════
+// POLA — MODAL
+// ══════════════════════════════
+const inputPola    = document.getElementById('inputPola');
+const inputRincian = document.getElementById('inputRincian');
+
+document.getElementById('fabPola').addEventListener('click', () => {
+  editingPolaId = null;
+  inputPola.value = ''; inputRincian.value = '';
+  document.getElementById('modalPolaTitle').innerHTML = 'Pola <span>Baru</span>';
+  bukaOverlay('overlayPola');
+  setTimeout(() => inputPola.focus(), 320);
+});
+
+document.getElementById('btnBatalPola').addEventListener('click', () => tutupOverlay('overlayPola'));
+document.getElementById('overlayPola').addEventListener('click', e => { if (e.target.id === 'overlayPola') tutupOverlay('overlayPola'); });
+inputPola.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inputRincian.focus(); } });
+
+document.getElementById('btnSimpanPola').addEventListener('click', () => {
+  const pola    = inputPola.value.trim();
+  const rincian = inputRincian.value.trim();
+  if (!pola) { flash(inputPola); return; }
+
+  if (editingPolaId !== null) {
+    const item = polaData.find(p => p.id === editingPolaId);
+    item.pola = pola; item.rincian = rincian;
+    _updatePolaCard(item);
+  } else {
+    const item = { id: Date.now(), pola, rincian, contoh: [] };
+    polaData.push(item);
+    _renderPolaCard(item);
+    document.getElementById('emptyMateri').style.display = 'none';
+    updateStats();
+  }
+  simpanPola();
+  tutupOverlay('overlayPola');
+});
+
+// ══════════════════════════════
+// POLA — RENDER
+// ══════════════════════════════
+function _renderPolaCard(item) {
+  const card = document.createElement('div');
+  card.className = 'item-card';
+  card.dataset.polaId = item.id;
+  card.innerHTML = _buildPolaHTML(item);
+  document.getElementById('polaList').appendChild(card);
+  _bindPolaEvents(card, item);
+}
+
+function _updatePolaCard(item) {
+  const card = document.querySelector(`[data-pola-id="${item.id}"]`);
+  if (!card) return;
+  card.innerHTML = _buildPolaHTML(item);
+  _bindPolaEvents(card, item);
+}
+
+function _buildPolaHTML(item) {
+  return `
+    <div class="item-left">
+      <div class="item-name">${item.pola}</div>
+      ${item.rincian ? `<div class="item-sub">${item.rincian}</div>` : ''}
+      <div class="item-meta">${item.contoh.length} contoh kalimat</div>
+    </div>
+    <div class="item-actions">
+      <button class="action-btn edit" title="Edit">✏️</button>
+      <button class="action-btn hapus" title="Hapus">🗑️</button>
+    </div>
+    <span class="item-arrow">→</span>
+  `;
+}
+
+function _bindPolaEvents(card, item) {
+  card.querySelector('.item-left').addEventListener('click', () => bukaDetailPola(item.id));
+  card.querySelector('.item-arrow').addEventListener('click', () => bukaDetailPola(item.id));
+  card.querySelector('.action-btn.edit').addEventListener('click', e => {
+    e.stopPropagation();
+    editingPolaId = item.id;
+    inputPola.value    = item.pola;
+    inputRincian.value = item.rincian;
+    document.getElementById('modalPolaTitle').innerHTML = 'Edit <span>Pola</span>';
+    bukaOverlay('overlayPola');
+    setTimeout(() => inputPola.focus(), 320);
+  });
+  card.querySelector('.action-btn.hapus').addEventListener('click', e => {
+    e.stopPropagation();
+    hapusType = 'pola'; hapusId = item.id;
+    document.getElementById('confirmTitle').textContent = 'Hapus Pola?';
+    document.getElementById('confirmMsg').textContent   = 'Pola kalimat dan semua contohnya akan dihapus permanen.';
+    bukaOverlay('confirmOverlay');
+  });
+}
+
+// ══════════════════════════════
+// DETAIL POLA
+// ══════════════════════════════
+function bukaDetailPola(polaId) {
+  currentPolaId = polaId;
+  const item = polaData.find(p => p.id === polaId);
+  if (!item) return;
+
+  document.getElementById('detailNama').textContent = item.pola;
+  const wrap = document.getElementById('detailRincianWrap');
+  const txt  = document.getElementById('detailRincianText');
+  if (item.rincian) { txt.textContent = item.rincian; wrap.style.display = 'block'; }
+  else { wrap.style.display = 'none'; }
+
+  const list = document.getElementById('contohList');
+  list.innerHTML = '';
+  item.contoh.forEach(c => _renderContohCard(c, item));
+  document.getElementById('emptyContoh').style.display = item.contoh.length === 0 ? 'flex' : 'none';
+  goTo('page-detail');
+}
+
+// ══════════════════════════════
+// CONTOH — MODAL
+// ══════════════════════════════
+const inputJP  = document.getElementById('inputJP');
+const inputID  = document.getElementById('inputID');
+const inputAlt = document.getElementById('inputAlt');
+
+document.getElementById('fabContoh').addEventListener('click', () => {
+  editingContohId = null;
+  inputJP.value = ''; inputID.value = ''; inputAlt.value = '';
+  document.getElementById('modalContohTitle').innerHTML = 'Contoh <span>Kalimat</span>';
+  bukaOverlay('overlayContoh');
+  setTimeout(() => inputJP.focus(), 320);
+});
+document.getElementById('btnBatalContoh').addEventListener('click', () => tutupOverlay('overlayContoh'));
+document.getElementById('overlayContoh').addEventListener('click', e => { if (e.target.id === 'overlayContoh') tutupOverlay('overlayContoh'); });
+inputJP.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inputID.focus(); } });
+inputID.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inputAlt.focus(); } });
+
+document.getElementById('btnSimpanContoh').addEventListener('click', () => {
+  const jp  = inputJP.value.trim();
+  const id  = inputID.value.trim();
+  const alt = inputAlt.value.trim();
+  if (!jp) { flash(inputJP); return; }
+
+  const pola = polaData.find(p => p.id === currentPolaId);
+  if (!pola) return;
+
+  if (editingContohId !== null) {
+    // mode edit
+    const contoh = pola.contoh.find(c => c.id === editingContohId);
+    if (contoh) {
+      contoh.jp  = jp;
+      contoh.id  = id;
+      contoh.alt = alt ? alt.split(',').map(s => s.trim()).filter(Boolean) : [];
+      // update card di DOM
+      const card = document.querySelector(`[data-contoh-id="${editingContohId}"]`);
+      if (card) {
+        card.querySelector('.contoh-jp').textContent = jp;
+        const idEl  = card.querySelector('.contoh-id');
+        const altEl = card.querySelector('.contoh-alt');
+        if (idEl)  idEl.textContent  = id;
+        if (altEl) altEl.innerHTML   = contoh.alt.length > 0 ? `<strong>Alt:</strong> ${contoh.alt.join(', ')}` : '';
+      }
+    }
+    editingContohId = null;
+  } else {
+    // mode tambah baru
+    const contoh = { id: Date.now(), jp, id, alt: alt ? alt.split(',').map(s => s.trim()).filter(Boolean) : [] };
+    pola.contoh.push(contoh);
+    _renderContohCard(contoh, pola);
+    document.getElementById('emptyContoh').style.display = 'none';
+  }
+
+  _updatePolaCard(pola);
+  simpanPola();
+  tutupOverlay('overlayContoh');
+});
+
+function _renderContohCard(contoh, pola) {
+  const card = document.createElement('div');
+  card.className = 'contoh-card';
+  card.dataset.contohId = contoh.id;
+  card.innerHTML = `
+    <div class="contoh-left">
+      <div class="contoh-jp">${contoh.jp}</div>
+      ${contoh.id ? `<div class="contoh-id">${contoh.id}</div>` : ''}
+      ${contoh.alt && contoh.alt.length > 0 ? `<div class="contoh-alt"><strong>Alt:</strong> ${contoh.alt.join(', ')}</div>` : ''}
+    </div>
+    <div class="item-actions">
+      <button class="action-btn edit" title="Edit">✏️</button>
+      <button class="action-btn hapus" title="Hapus">🗑️</button>
+    </div>
+  `;
+  card.querySelector('.action-btn.edit').addEventListener('click', () => {
+    editingContohId = contoh.id;
+    inputJP.value  = contoh.jp;
+    inputID.value  = contoh.id || '';
+    inputAlt.value = contoh.alt ? contoh.alt.join(', ') : '';
+    document.getElementById('modalContohTitle').innerHTML = 'Edit <span>Contoh</span>';
+    bukaOverlay('overlayContoh');
+    setTimeout(() => inputJP.focus(), 320);
+  });
+  card.querySelector('.action-btn.hapus').addEventListener('click', () => {
+    hapusType = 'contoh'; hapusId = pola.id; hapusContohId = contoh.id;
+    document.getElementById('confirmTitle').textContent = 'Hapus Contoh?';
+    document.getElementById('confirmMsg').textContent   = 'Contoh kalimat ini akan dihapus permanen.';
+    bukaOverlay('confirmOverlay');
+  });
+  document.getElementById('contohList').appendChild(card);
+}
+
+// ══════════════════════════════
+// KOSAKATA — MODAL
+// ══════════════════════════════
+const inputKosJP     = document.getElementById('inputKosJP');
+const inputKosRomaji = document.getElementById('inputKosRomaji');
+const inputKosID     = document.getElementById('inputKosID');
+
+document.getElementById('fabKosakata').addEventListener('click', () => {
+  editingKosId = null;
+  inputKosJP.value = ''; inputKosRomaji.value = ''; inputKosID.value = '';
+  document.getElementById('modalKosTitle').innerHTML = 'Kosakata <span>Baru</span>';
+  bukaOverlay('overlayKosakata');
+  setTimeout(() => inputKosJP.focus(), 320);
+});
+document.getElementById('btnBatalKos').addEventListener('click', () => tutupOverlay('overlayKosakata'));
+document.getElementById('overlayKosakata').addEventListener('click', e => { if (e.target.id === 'overlayKosakata') tutupOverlay('overlayKosakata'); });
+inputKosJP.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inputKosRomaji.focus(); } });
+inputKosRomaji.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inputKosID.focus(); } });
+
+document.getElementById('btnSimpanKos').addEventListener('click', () => {
+  const jp     = inputKosJP.value.trim();
+  const romaji = inputKosRomaji.value.trim();
+  const arti   = inputKosID.value.trim();
+  if (!jp) { flash(inputKosJP); return; }
+
+  if (editingKosId !== null) {
+    const item = kosakata.find(k => k.id === editingKosId);
+    item.jp = jp; item.romaji = romaji; item.arti = arti;
+    _updateKosCard(item);
+  } else {
+    const item = { id: Date.now(), jp, romaji, arti };
+    kosakata.push(item);
+    _renderKosCard(item);
+    document.getElementById('emptyKosakata').style.display = 'none';
+    updateStats();
+  }
+  simpanKosakata();
+  tutupOverlay('overlayKosakata');
+});
+
+function _renderKosCard(item) {
+  const card = document.createElement('div');
+  card.className = 'item-card';
+  card.dataset.kosId = item.id;
+  card.innerHTML = _buildKosHTML(item);
+  document.getElementById('kosakatalist').appendChild(card);
+  _bindKosEvents(card, item);
+}
+
+function _updateKosCard(item) {
+  const card = document.querySelector(`[data-kos-id="${item.id}"]`);
+  if (!card) return;
+  card.innerHTML = _buildKosHTML(item);
+  _bindKosEvents(card, item);
+}
+
+function _buildKosHTML(item) {
+  return `
+    <div class="item-left">
+      <div class="item-name">${item.jp}</div>
+      ${item.romaji ? `<div class="item-sub" style="font-style:italic;">${item.romaji}</div>` : ''}
+      ${item.arti   ? `<div class="item-sub2">${item.arti}</div>` : ''}
+    </div>
+    <div class="item-actions">
+      <button class="action-btn edit" title="Edit">✏️</button>
+      <button class="action-btn hapus" title="Hapus">🗑️</button>
+    </div>
+  `;
+}
+
+function _bindKosEvents(card, item) {
+  card.querySelector('.action-btn.edit').addEventListener('click', e => {
+    e.stopPropagation();
+    editingKosId = item.id;
+    inputKosJP.value     = item.jp;
+    inputKosRomaji.value = item.romaji;
+    inputKosID.value     = item.arti;
+    document.getElementById('modalKosTitle').innerHTML = 'Edit <span>Kosakata</span>';
+    bukaOverlay('overlayKosakata');
+    setTimeout(() => inputKosJP.focus(), 320);
+  });
+  card.querySelector('.action-btn.hapus').addEventListener('click', e => {
+    e.stopPropagation();
+    hapusType = 'kosakata'; hapusId = item.id;
+    document.getElementById('confirmTitle').textContent = 'Hapus Kosakata?';
+    document.getElementById('confirmMsg').textContent   = 'Kosakata ini akan dihapus permanen.';
+    bukaOverlay('confirmOverlay');
+  });
+}
+
+// ══════════════════════════════
+// KONFIRMASI HAPUS
+// ══════════════════════════════
+document.getElementById('btnHapusBatal').addEventListener('click', () => tutupOverlay('confirmOverlay'));
+document.getElementById('confirmOverlay').addEventListener('click', e => { if (e.target.id === 'confirmOverlay') tutupOverlay('confirmOverlay'); });
+
+document.getElementById('btnHapusOk').addEventListener('click', () => {
+  if (hapusType === 'pola') {
+    polaData = polaData.filter(p => p.id !== hapusId);
+    animasiHapus(`[data-pola-id="${hapusId}"]`);
+    if (polaData.length === 0) document.getElementById('emptyMateri').style.display = '';
+    simpanPola(); updateStats();
+
+  } else if (hapusType === 'contoh') {
+    const pola = polaData.find(p => p.id === hapusId);
+    if (pola) {
+      pola.contoh = pola.contoh.filter(c => c.id !== hapusContohId);
+      animasiHapus(`[data-contoh-id="${hapusContohId}"]`);
+      if (pola.contoh.length === 0) document.getElementById('emptyContoh').style.display = 'flex';
+      _updatePolaCard(pola);
+      simpanPola();
+    }
+
+  } else if (hapusType === 'kosakata') {
+    kosakata = kosakata.filter(k => k.id !== hapusId);
+    animasiHapus(`[data-kos-id="${hapusId}"]`);
+    if (kosakata.length === 0) document.getElementById('emptyKosakata').style.display = '';
+    simpanKosakata(); updateStats();
+  }
+
+  hapusType = null; hapusId = null; hapusContohId = null;
+  tutupOverlay('confirmOverlay');
+});
+
+// ══════════════════════════════
+// UTILS
+// ══════════════════════════════
+function animasiHapus(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  el.style.opacity = '0';
+  el.style.transform = 'translateX(16px)';
+  el.style.transition = 'opacity 0.2s, transform 0.2s';
+  setTimeout(() => el.remove(), 200);
+}
+
+function flash(el) {
+  el.style.borderColor = 'var(--red)';
+  el.focus();
+  setTimeout(() => el.style.borderColor = '', 1200);
+}
+
+
+// ══════════════════════════════
+// KUIS
+// ══════════════════════════════
+let kuisSoalList   = [];
+let kuisIndex      = 0;
+let kuisBenar      = 0;
+let kuisJawabanDipilih = []; // kata yang sudah diklik ke jawaban
+let kuisSudahPeriksa   = false;
+let kuisSoalAktif      = null;
+let kuisKataJawaban    = [];
+let kuisArahJP         = true;
+let kuisPilganDipilih  = null;
+
+function mulaiKuis() {
+  // kumpulkan semua contoh dari semua pola
+  const semuaContoh = [];
+  polaData.forEach(p => {
+    p.contoh.forEach(c => {
+      if (c.jp && c.id) semuaContoh.push({ jp: c.jp, id: c.id, alt: c.alt || [] });
+    });
+  });
+
+  if (semuaContoh.length < 2) {
+    renderKuisEmpty();
+    return;
+  }
+
+  // acak soal, maks 10
+  kuisSoalList = acak([...semuaContoh]).slice(0, 15);
+  kuisIndex  = 0;
+  kuisBenar  = 0;
+  tampilSoal();
+}
+
+function tampilSoal() {
+  if (kuisIndex >= kuisSoalList.length) {
+    renderKuisHasil();
+    return;
+  }
+
+  kuisJawabanDipilih = [];
+  kuisPilganDipilih  = null;
+  kuisSudahPeriksa   = false;
+  kuisArahJP         = Math.random() > 0.5;
+
+  const soal    = kuisSoalList[kuisIndex];
+  const teks    = kuisArahJP ? soal.jp : soal.id;
+  const jawaban = kuisArahJP ? soal.id : soal.jp;
+
+  kuisSoalAktif   = soal;
+  kuisKataJawaban = jawaban.trim().split(' ').filter(k => k.length > 0);
+  // untuk ID->JP, kata jawaban dari JP; untuk JP->ID dari ID — sudah benar karena jawaban = arahJP ? soal.id : soal.jp
+
+  const wrap = document.getElementById('kuisWrap');
+  wrap.innerHTML = `
+    <div class="kuis-header">
+      <button class="kuis-back" onclick="goTo('page-menu')">✕</button>
+      <div class="kuis-progress-bar">
+        <div class="kuis-progress-fill" style="width:${(kuisIndex/kuisSoalList.length)*100}%"></div>
+      </div>
+      <div class="kuis-counter">${kuisIndex+1} / ${kuisSoalList.length}</div>
+    </div>
+    <div class="kuis-label"><span class="dot"></span>${kuisArahJP ? 'JP → ID' : 'ID → JP'}</div>
+    <div class="kuis-instruksi">Terjemahkan kalimat ini</div>
+    <div class="kuis-soal-box">
+      <div class="kuis-soal-text ${kuisArahJP ? '' : 'latin'}">${teks}</div>
+    </div>
+    <div id="jawabanArea" class="kuis-jawaban-area"></div>
+    <div id="opsiWrap" class="kuis-opsi-wrap"></div>
+    <div class="kuis-feedback" id="kuisFeedback"></div>
+    <button class="kuis-btn-periksa" id="btnPeriksa" onclick="periksaJawaban()">PERIKSA</button>
+  `;
+
+  const soalLain = kuisSoalList.filter((_, i) => i !== kuisIndex);
+  const opsiWrap = document.getElementById('opsiWrap');
+
+  if (kuisArahJP) {
+    // JP→ID: susun kata
+    let kataPengecoh = [];
+    soalLain.forEach(s => {
+      s.id.trim().split(' ').filter(k => k.length > 0).forEach(k => {
+        if (!kuisKataJawaban.includes(k)) kataPengecoh.push(k);
+      });
+    });
+    kataPengecoh = [...new Set(kataPengecoh)];
+    acak(kataPengecoh);
+    const extra     = kataPengecoh.slice(0, Math.max(3, 6 - kuisKataJawaban.length));
+    const semuaKata = acak([...kuisKataJawaban, ...extra]);
+    semuaKata.forEach((k, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'kata-chip';
+      chip.textContent = k;
+      chip.dataset.idx = i;
+      chip.addEventListener('click', () => pilihKata(chip, k));
+      opsiWrap.appendChild(chip);
+    });
+  } else {
+    // ID→JP: susun kata dari kalimat JP (dipecah per spasi)
+    let kataPengecoh = [];
+    soalLain.forEach(s => {
+      s.jp.trim().split(' ').filter(k => k.length > 0).forEach(k => {
+        if (!kuisKataJawaban.includes(k)) kataPengecoh.push(k);
+      });
+    });
+    kataPengecoh = [...new Set(kataPengecoh)];
+    acak(kataPengecoh);
+    const extra     = kataPengecoh.slice(0, Math.max(3, 6 - kuisKataJawaban.length));
+    const semuaKata = acak([...kuisKataJawaban, ...extra]);
+    semuaKata.forEach((k, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'kata-chip jp';
+      chip.textContent = k;
+      chip.dataset.idx = i;
+      chip.addEventListener('click', () => pilihKata(chip, k));
+      opsiWrap.appendChild(chip);
+    });
+  }
+}
+
+function pilihKata(el, kata) {
+  if (kuisSudahPeriksa) return;
+  if (el.classList.contains('terpilih')) return;
+
+  el.classList.add('terpilih', 'disabled');
+  kuisJawabanDipilih.push({ kata, elId: el.dataset.idx });
+
+  const area = document.getElementById('jawabanArea');
+  const chip = document.createElement('div');
+  chip.className = 'kata-chip terpilih';
+  chip.textContent = kata;
+  chip.dataset.idx = el.dataset.idx;
+  chip.addEventListener('click', () => batalKata(chip, el));
+  area.appendChild(chip);
+
+  updateBtnPeriksa();
+}
+
+function pilihPilgan(el, kalimat) {
+  if (kuisSudahPeriksa) return;
+  // reset semua
+  document.querySelectorAll('.pilgan-chip').forEach(c => c.classList.remove('terpilih'));
+  el.classList.add('terpilih');
+  kuisPilganDipilih = kalimat;
+  updateBtnPeriksa();
+}
+
+function batalKata(chipJawaban, elOpsi) {
+  if (kuisSudahPeriksa) return;
+  kuisJawabanDipilih = kuisJawabanDipilih.filter(k => k.elId !== chipJawaban.dataset.idx);
+  chipJawaban.remove();
+  // kembalikan chip di opsi
+  const opsi = document.querySelector(`.kata-chip[data-idx="${elOpsi ? elOpsi.dataset.idx : chipJawaban.dataset.idx}"]`);
+  if (opsi) { opsi.classList.remove('terpilih', 'disabled'); }
+  updateBtnPeriksa();
+}
+
+function updateBtnPeriksa() {
+  const btn = document.getElementById('btnPeriksa');
+  if (!btn) return;
+  const adaJawaban = kuisArahJP ? kuisJawabanDipilih.length > 0 : kuisPilganDipilih !== null;
+  if (adaJawaban) {
+    btn.classList.add('aktif');
+  } else {
+    btn.classList.remove('aktif');
+  }
+}
+
+function periksaJawaban() {
+  if (kuisSudahPeriksa) {
+    kuisIndex++;
+    tampilSoal();
+    return;
+  }
+  if (kuisJawabanDipilih.length === 0) return;
+
+  kuisSudahPeriksa = true;
+  const soal = kuisSoalAktif;
+  let benar  = false;
+
+  // kedua arah pakai susun kata
+  const jawabanUser  = kuisJawabanDipilih.map(k => k.kata).join(' ').trim();
+  const jawabanBenar = kuisKataJawaban.join(' ').trim();
+  // untuk JP->ID: bandingkan lowercase, untuk ID->JP: case sensitive tidak relevan
+  benar = jawabanUser.toLowerCase() === jawabanBenar.toLowerCase();
+
+  const area = document.getElementById('jawabanArea');
+  area.querySelectorAll('.kata-chip').forEach(c => {
+    c.classList.remove('terpilih');
+    c.classList.add(benar ? 'benar' : 'salah');
+  });
+
+  if (benar) kuisBenar++;
+
+  // feedback
+  const fb = document.getElementById('kuisFeedback');
+  fb.style.display = 'block';
+  if (benar) {
+    fb.className = 'kuis-feedback benar';
+    fb.innerHTML = `<div class="kuis-feedback-title">✓ Benar!</div><div class="kuis-feedback-text">Jawaban kamu tepat.</div>`;
+  } else {
+    fb.className = 'kuis-feedback salah';
+    fb.innerHTML = `<div class="kuis-feedback-title">✗ Kurang tepat</div><div class="kuis-feedback-text">Jawaban: <strong style="color:white">${kuisKataJawaban.join(' ')}</strong></div>`;
+  }
+
+  // ubah tombol jadi lanjut
+  const btn = document.getElementById('btnPeriksa');
+  btn.textContent = kuisIndex + 1 >= kuisSoalList.length ? 'LIHAT HASIL' : 'LANJUT →';
+  btn.classList.remove('aktif');
+  btn.classList.add('lanjut');
+}
+
+function renderKuisEmpty() {
+  const wrap = document.getElementById('kuisWrap');
+  wrap.innerHTML = `
+    <div class="kuis-header">
+      <button class="kuis-back" onclick="goTo('page-menu')">✕</button>
+    </div>
+    <div class="kuis-empty">
+      <div class="kuis-empty-icon">問</div>
+      <div class="kuis-empty-title">Belum cukup soal</div>
+      <div class="kuis-empty-desc">Tambahkan minimal 2 contoh kalimat di halaman Materi dulu sebelum mulai kuis.</div>
+      <button class="kuis-empty-btn" onclick="goTo('page-materi')">Ke Materi</button>
+    </div>
+  `;
+}
+
+function renderKuisHasil() {
+  tambahRiwayatKuis(kuisBenar, kuisSoalList.length);
+  catatHariIni();
+  const persen = Math.round((kuisBenar / kuisSoalList.length) * 100);
+  const pesan  = persen === 100 ? '完璧！Sempurna!' : persen >= 70 ? 'よくできました！Bagus!' : 'もう一度！Coba lagi!';
+  const wrap   = document.getElementById('kuisWrap');
+  wrap.innerHTML = `
+    <div class="kuis-header">
+      <button class="kuis-back" onclick="goTo('page-menu')">✕</button>
+    </div>
+    <div class="kuis-hasil">
+      <div class="kuis-hasil-label">Hasil Kuis</div>
+      <div class="kuis-hasil-skor">${kuisBenar}<span style="font-size:40px;opacity:0.4"> / ${kuisSoalList.length}</span></div>
+      <div class="kuis-hasil-pesan">${pesan}</div>
+      <button class="kuis-hasil-btn" onclick="mulaiKuis()">Ulangi Kuis</button>
+      <button class="kuis-hasil-btn" style="background:rgba(255,255,255,0.1);" onclick="goTo('page-menu')">Kembali ke Menu</button>
+    </div>
+  `;
+}
+
+function goTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo(0, 0);
+  if (pageId === 'page-kuis')      mulaiKuis();
+  if (pageId === 'page-srs')       mulaiSRS();
+  if (pageId === 'page-statistik') hitungStatistik();
+  if (pageId === 'page-pengaturan') terapkanPengaturan();
+}
+
+function acak(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+
+// ══════════════════════════════
+// SRS ENGINE
+// ══════════════════════════════
+// interval (hari): level 0=baru, 1=1hr, 2=3hr, 3=7hr, 4=14hr, 5=30hr
+const SRS_INTERVAL = [0, 1, 3, 7, 14, 30];
+
+function simpanSRS() {
+  localStorage.setItem('manabi_srs', JSON.stringify(srsData));
+}
+
+function muatSRS() {
+  try {
+    const s = localStorage.getItem('manabi_srs');
+    if (s) srsData = JSON.parse(s);
+  } catch(e) {}
+}
+
+function getSRSKey(polaId, contohId) {
+  return polaId + '_' + contohId;
+}
+
+function getKartuHariIni() {
+  const sekarang = Date.now();
+  const kartu = [];
+  polaData.forEach(pola => {
+    pola.contoh.forEach(contoh => {
+      if (!contoh.jp || !contoh.id) return;
+      const key  = getSRSKey(pola.id, contoh.id);
+      const data = srsData[key] || { level: 0, nextReview: 0 };
+      if (sekarang >= data.nextReview) {
+        kartu.push({ pola, contoh, key, level: data.level });
+      }
+    });
+  });
+  return acak(kartu);
+}
+
+function updateSRSBadge() {
+  const n = getKartuHariIni().length;
+  document.getElementById('srsBadge').textContent  = n;
+  document.getElementById('reviewCount').textContent = n;
+}
+
+// state SRS aktif
+let srsData        = {};
+let srsKartuList   = [];
+let srsIndex       = 0;
+let srsBenar       = 0;
+let srsSudahPeriksa = false;
+let srsJawabanDipilih = [];
+let srsKataJawaban  = [];
+let srsSoalAktif    = null;
+let srsArahJP       = true;
+
+function mulaiSRS() {
+  srsKartuList = getKartuHariIni();
+  srsIndex = 0;
+  srsBenar = 0;
+  if (srsKartuList.length === 0) {
+    renderSRSEmpty();
+  } else {
+    tampilKartuSRS();
+  }
+}
+
+function tampilKartuSRS() {
+  if (srsIndex >= srsKartuList.length) {
+    renderSRSHasil();
+    return;
+  }
+
+  srsJawabanDipilih = [];
+  srsSudahPeriksa   = false;
+  srsArahJP         = Math.random() > 0.5;
+
+  const { pola, contoh } = srsKartuList[srsIndex];
+  const teks    = srsArahJP ? contoh.jp : contoh.id;
+  const jawaban = srsArahJP ? contoh.id : contoh.jp;
+
+  srsSoalAktif    = contoh;
+  srsKataJawaban  = jawaban.trim().split(' ').filter(k => k.length > 0);
+
+  // kumpulkan kata pengecoh dari kartu lain
+  const kartuLain = srsKartuList.filter((_, i) => i !== srsIndex);
+  let pengecoh = [];
+  kartuLain.forEach(k => {
+    const teksLain = srsArahJP ? k.contoh.id : k.contoh.jp;
+    teksLain.trim().split(' ').filter(w => w.length > 0).forEach(w => {
+      if (!srsKataJawaban.includes(w)) pengecoh.push(w);
+    });
+  });
+  pengecoh = [...new Set(pengecoh)];
+  acak(pengecoh);
+  const extra     = pengecoh.slice(0, Math.max(3, 6 - srsKataJawaban.length));
+  const semuaKata = acak([...srsKataJawaban, ...extra]);
+
+  const wrap = document.getElementById('srsWrap');
+  wrap.innerHTML = `
+    <div class="srs-header">
+      <button class="srs-back" onclick="goTo('page-menu')">✕</button>
+      <div class="srs-progress-bar">
+        <div class="srs-progress-fill" style="width:${(srsIndex/srsKartuList.length)*100}%"></div>
+      </div>
+      <div class="srs-counter">${srsIndex+1} / ${srsKartuList.length}</div>
+    </div>
+    <div class="srs-label"><span class="dot"></span>${srsArahJP ? 'JP → ID' : 'ID → JP'}</div>
+    <div class="srs-instruksi">Terjemahkan kalimat ini</div>
+    <div class="srs-soal-box">
+      <div class="srs-soal-text ${srsArahJP ? '' : 'latin'}">${teks}</div>
+    </div>
+    <div class="srs-jawaban-area" id="srsJawabanArea"></div>
+    <div class="srs-opsi-wrap" id="srsOpsiWrap"></div>
+    <div class="srs-feedback" id="srsFeedback"></div>
+    <button class="srs-btn-periksa" id="btnSRSPeriksa" onclick="periksaSRS()">PERIKSA</button>
+  `;
+
+  const opsiWrap = document.getElementById('srsOpsiWrap');
+  semuaKata.forEach((k, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'kata-chip' + ((!srsArahJP) ? ' jp' : '');
+    chip.textContent = k;
+    chip.dataset.idx = i;
+    chip.addEventListener('click', () => pilihKataSRS(chip, k));
+    opsiWrap.appendChild(chip);
+  });
+}
+
+function pilihKataSRS(el, kata) {
+  if (srsSudahPeriksa) return;
+  if (el.classList.contains('terpilih')) return;
+  el.classList.add('terpilih', 'disabled');
+  srsJawabanDipilih.push({ kata, elId: el.dataset.idx });
+
+  const area = document.getElementById('srsJawabanArea');
+  const chip = document.createElement('div');
+  chip.className = 'kata-chip terpilih';
+  chip.textContent = kata;
+  chip.dataset.idx = el.dataset.idx;
+  chip.addEventListener('click', () => batalKataSRS(chip, el));
+  area.appendChild(chip);
+  updateBtnSRS();
+}
+
+function batalKataSRS(chipJawaban, elOpsi) {
+  if (srsSudahPeriksa) return;
+  srsJawabanDipilih = srsJawabanDipilih.filter(k => k.elId !== chipJawaban.dataset.idx);
+  chipJawaban.remove();
+  const opsi = document.querySelector(`.srs-opsi-wrap .kata-chip[data-idx="${elOpsi.dataset.idx}"]`);
+  if (opsi) opsi.classList.remove('terpilih', 'disabled');
+  updateBtnSRS();
+}
+
+function updateBtnSRS() {
+  const btn = document.getElementById('btnSRSPeriksa');
+  if (!btn) return;
+  if (srsJawabanDipilih.length > 0) btn.classList.add('aktif');
+  else btn.classList.remove('aktif');
+}
+
+function periksaSRS() {
+  if (srsSudahPeriksa) {
+    srsIndex++;
+    tampilKartuSRS();
+    return;
+  }
+  if (srsJawabanDipilih.length === 0) return;
+
+  srsSudahPeriksa = true;
+  const jawabanUser  = srsJawabanDipilih.map(k => k.kata).join(' ').trim().toLowerCase();
+  const jawabanBenar = srsKataJawaban.join(' ').trim().toLowerCase();
+  const benar = jawabanUser === jawabanBenar;
+
+  if (benar) { srsBenar++; bunyiBenar(); } else { bunyiSalah(); }
+
+  // update SRS level
+  const { key, level } = srsKartuList[srsIndex];
+  const levelBaru = benar ? Math.min(level + 1, SRS_INTERVAL.length - 1) : 0;
+  const intervalHari = SRS_INTERVAL[levelBaru];
+  const nextReview = benar
+    ? Date.now() + intervalHari * 24 * 60 * 60 * 1000
+    : Date.now(); // salah → langsung muncul lagi besok kita skip dulu hari ini
+  srsData[key] = { level: levelBaru, nextReview };
+  simpanSRS();
+  updateSRSBadge();
+
+  // warnai chip jawaban
+  const area = document.getElementById('srsJawabanArea');
+  area.querySelectorAll('.kata-chip').forEach(c => {
+    c.classList.remove('terpilih');
+    c.classList.add(benar ? 'benar' : 'salah');
+  });
+
+  // feedback + info interval
+  const fb = document.getElementById('srsFeedback');
+  fb.style.display = 'block';
+  const infoInterval = benar
+    ? `Review berikutnya: ${intervalHari === 0 ? 'hari ini' : intervalHari + ' hari lagi'}`
+    : 'Kartu ini akan muncul lagi di sesi berikutnya.';
+  if (benar) {
+    fb.className = 'srs-feedback benar';
+    fb.innerHTML = `<div class="srs-feedback-title">✓ Benar!</div>
+      <div class="srs-feedback-text">${infoInterval}</div>`;
+  } else {
+    fb.className = 'srs-feedback salah';
+    fb.innerHTML = `<div class="srs-feedback-title">✗ Kurang tepat</div>
+      <div class="srs-feedback-text">Jawaban: <strong style="color:white">${srsKataJawaban.join(' ')}</strong><br>${infoInterval}</div>`;
+  }
+
+  const btn = document.getElementById('btnSRSPeriksa');
+  btn.textContent = srsIndex + 1 >= srsKartuList.length ? 'LIHAT HASIL' : 'LANJUT →';
+  btn.classList.remove('aktif');
+  btn.classList.add('lanjut');
+}
+
+function renderSRSEmpty() {
+  const semuaContoh = polaData.reduce((acc, p) => acc + p.contoh.filter(c => c.jp && c.id).length, 0);
+  const wrap = document.getElementById('srsWrap');
+  if (semuaContoh === 0) {
+    wrap.innerHTML = `
+      <div class="srs-header"><button class="srs-back" onclick="goTo('page-menu')">✕</button></div>
+      <div class="srs-empty">
+        <div class="srs-empty-icon">📚</div>
+        <div class="srs-empty-title">Belum ada materi</div>
+        <div class="srs-empty-desc">Tambahkan contoh kalimat di halaman Materi dulu.</div>
+        <button class="srs-empty-btn" onclick="goTo('page-materi')">Ke Materi</button>
+      </div>`;
+  } else {
+    // ada materi tapi belum waktunya review
+    const kartuBerikutnya = _kartuBerikutnya();
+    wrap.innerHTML = `
+      <div class="srs-header"><button class="srs-back" onclick="goTo('page-menu')">✕</button></div>
+      <div class="srs-empty">
+        <div class="srs-empty-icon">🎉</div>
+        <div class="srs-empty-title">Semua beres!</div>
+        <div class="srs-empty-desc">Tidak ada kartu yang perlu direview sekarang.${kartuBerikutnya ? '<br><br>Kartu berikutnya: <strong style="color:#a5b4fc">' + kartuBerikutnya + '</strong>' : ''}</div>
+        <button class="srs-empty-btn" onclick="goTo('page-menu')">Kembali ke Menu</button>
+      </div>`;
+  }
+}
+
+function _kartuBerikutnya() {
+  let minTime = Infinity;
+  polaData.forEach(pola => {
+    pola.contoh.forEach(contoh => {
+      const key  = getSRSKey(pola.id, contoh.id);
+      const data = srsData[key];
+      if (data && data.nextReview > Date.now()) {
+        if (data.nextReview < minTime) minTime = data.nextReview;
+      }
+    });
+  });
+  if (minTime === Infinity) return null;
+  const selisih = minTime - Date.now();
+  const jam  = Math.floor(selisih / 3600000);
+  const hari = Math.floor(jam / 24);
+  if (hari > 0) return hari + ' hari lagi';
+  if (jam > 0)  return jam + ' jam lagi';
+  return 'kurang dari 1 jam lagi';
+}
+
+function renderSRSHasil() {
+  catatHariIni();
+  const total  = srsKartuList.length;
+  const persen = Math.round((srsBenar / total) * 100);
+  const pesan  = persen === 100 ? '完璧！Sempurna!' : persen >= 70 ? 'よくできました！Bagus!' : 'もう一度！Tetap semangat!';
+  const wrap   = document.getElementById('srsWrap');
+  wrap.innerHTML = `
+    <div class="srs-header"><button class="srs-back" onclick="goTo('page-menu')">✕</button></div>
+    <div class="srs-hasil">
+      <div class="srs-hasil-label">Sesi Review Selesai</div>
+      <div class="srs-hasil-skor">${srsBenar}<span style="font-size:36px;opacity:0.35"> / ${total}</span></div>
+      <div class="srs-hasil-pesan">${pesan}</div>
+      <button class="srs-hasil-btn" style="background:#6366f1;color:white;" onclick="goTo('page-menu')">Kembali ke Menu</button>
+    </div>
+  `;
+  updateSRSBadge();
+}
+
+
+
+// ══════════════════════════════
+// PENGATURAN
+// ══════════════════════════════
+let pengaturan = { darkMode: false, suara: true };
+
+function simpanPengaturan() {
+  localStorage.setItem('manabi_pengaturan', JSON.stringify(pengaturan));
+}
+function muatPengaturan() {
+  try {
+    const p = localStorage.getItem('manabi_pengaturan');
+    if (p) pengaturan = { ...pengaturan, ...JSON.parse(p) };
+  } catch(e) {}
+  terapkanPengaturan();
+}
+function terapkanPengaturan() {
+  // dark mode
+  document.body.classList.toggle('dark', pengaturan.darkMode);
+  const td = document.getElementById('toggleDark');
+  if (td) td.checked = pengaturan.darkMode;
+  // suara
+  const ts = document.getElementById('toggleSuara');
+  if (ts) ts.checked = pengaturan.suara;
+}
+
+function ubahDarkMode(aktif) {
+  pengaturan.darkMode = aktif;
+  document.body.classList.toggle('dark', aktif);
+  simpanPengaturan();
+}
+function ubahSuara(aktif) {
+  pengaturan.suara = aktif;
+  simpanPengaturan();
+}
+
+// ── SUARA (Web Audio API) ──
+function bunyiBenar() {
+  if (!pengaturan.suara) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, ctx.currentTime);
+    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(); osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+function bunyiSalah() {
+  if (!pengaturan.suara) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, ctx.currentTime);
+    osc.frequency.setValueAtTime(180, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    osc.start(); osc.stop(ctx.currentTime + 0.35);
+  } catch(e) {}
+}
+
+// ── EXPORT ──
+function exportData() {
+  const data = {
+    versi: 1,
+    exportAt: new Date().toISOString(),
+    pola: polaData,
+    kosakata,
+    srs: srsData,
+    riwayat: riwayatKuis,
+    streak: streakData
+  };
+  const json = JSON.stringify(data, null, 2);
+
+  // Tampilkan di modal export
+  document.getElementById('exportModal').classList.add('active');
+  document.getElementById('exportText').value = json;
+  document.getElementById('exportText').select();
+
+  // Coba salin otomatis
+  try {
+    navigator.clipboard.writeText(json).then(() => {
+      document.getElementById('exportCopyMsg').textContent = '✓ Otomatis tersalin ke clipboard!';
+    }).catch(() => {
+      document.getElementById('exportCopyMsg').textContent = 'Tekan tombol Salin di bawah.';
+    });
+  } catch(e) {
+    document.getElementById('exportCopyMsg').textContent = 'Tekan tombol Salin di bawah.';
+  }
+}
+
+function salinExport() {
+  const txt = document.getElementById('exportText');
+  txt.select();
+  try {
+    navigator.clipboard.writeText(txt.value).then(() => {
+      document.getElementById('exportCopyMsg').textContent = '✓ Tersalin!';
+    }).catch(() => {
+      document.execCommand('copy');
+      document.getElementById('exportCopyMsg').textContent = '✓ Tersalin!';
+    });
+  } catch(e) {
+    document.execCommand('copy');
+    document.getElementById('exportCopyMsg').textContent = '✓ Tersalin!';
+  }
+}
+
+// ── IMPORT ──
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.pola) { const msgEl = document.getElementById('importMsgNew');
+      if (msgEl) { msgEl.textContent = '✗ Format file tidak valid!'; msgEl.style.color = '#dc2626'; }
+      return; }
+      if (!confirm('Import akan menimpa semua data yang ada sekarang. Lanjutkan?')) return;
+
+      polaData     = data.pola     || [];
+      kosakata     = data.kosakata || [];
+      srsData      = data.srs      || {};
+      riwayatKuis  = data.riwayat  || [];
+      streakData   = data.streak   || { lastDate: null, count: 0 };
+
+      simpanPola(); simpanKosakata(); simpanSRS(); simpanRiwayat(); simpanStreak();
+
+      // rebuild UI materi
+      document.getElementById('polaList').innerHTML = '';
+      document.getElementById('emptyMateri').style.display = polaData.length === 0 ? '' : 'none';
+      polaData.forEach(item => _renderPolaCard(item));
+
+      // rebuild UI kosakata
+      document.getElementById('kosakatalist').innerHTML = '';
+      document.getElementById('emptyKosakata').style.display = kosakata.length === 0 ? '' : 'none';
+      kosakata.forEach(item => _renderKosCard(item));
+
+      updateStats(); updateSRSBadge();
+      const msgEl = document.getElementById('importMsgNew');
+      if (msgEl) { msgEl.textContent = '✓ Import berhasil! ' + polaData.length + ' pola, ' + kosakata.length + ' kosakata.'; msgEl.style.color = '#16a34a'; }
+    } catch(err) {
+      const msgEl = document.getElementById('importMsgNew');
+      if (msgEl) { msgEl.textContent = '✗ Gagal: ' + err.message; msgEl.style.color = '#dc2626'; }
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ── RESET ──
+function resetData() {
+  if (!confirm('Reset statistik? Riwayat kuis, streak, dan data SRS akan dihapus. Pola & kosakata tetap aman.')) return;
+
+  srsData     = {};
+  riwayatKuis = [];
+  streakData  = { lastDate: null, count: 0 };
+
+  ['manabi_srs','manabi_riwayat','manabi_streak'].forEach(k => localStorage.removeItem(k));
+
+  updateStats(); updateSRSBadge();
+
+  const msgEl = document.getElementById('importMsgNew');
+  if (msgEl) { msgEl.textContent = '✓ Statistik berhasil direset.'; msgEl.style.color = '#16a34a'; setTimeout(() => { msgEl.textContent = ''; }, 3000); }
+}
+
+// ══════════════════════════════
+// STATISTIK
+// ══════════════════════════════
+let riwayatKuis = [];
+let streakData  = { lastDate: null, count: 0 };
+
+function simpanRiwayat() {
+  localStorage.setItem('manabi_riwayat', JSON.stringify(riwayatKuis));
+}
+function muatRiwayat() {
+  try {
+    const r = localStorage.getItem('manabi_riwayat');
+    if (r) riwayatKuis = JSON.parse(r);
+  } catch(e) {}
+}
+
+function simpanStreak() {
+  localStorage.setItem('manabi_streak', JSON.stringify(streakData));
+}
+function muatStreak() {
+  try {
+    const s = localStorage.getItem('manabi_streak');
+    if (s) streakData = JSON.parse(s);
+  } catch(e) {}
+}
+
+function catatHariIni() {
+  const hari = new Date().toDateString();
+  if (streakData.lastDate === hari) return; // sudah dicatat hari ini
+  const kemarin = new Date(Date.now() - 86400000).toDateString();
+  if (streakData.lastDate === kemarin) {
+    streakData.count++;
+  } else {
+    streakData.count = 1;
+  }
+  streakData.lastDate = hari;
+  simpanStreak();
+  document.getElementById('statStreak').textContent = streakData.count;
+}
+
+function tambahRiwayatKuis(benar, total) {
+  const entry = {
+    tgl: new Date().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }),
+    jam: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }),
+    benar, total,
+    persen: Math.round((benar/total)*100)
+  };
+  riwayatKuis.unshift(entry);
+  if (riwayatKuis.length > 20) riwayatKuis = riwayatKuis.slice(0, 20);
+  simpanRiwayat();
+}
+
+function hitungStatistik() {
+  // materi
+  let totalContoh = 0;
+  polaData.forEach(p => { totalContoh += p.contoh.length; });
+  const elPola     = document.getElementById('s_pola');
+  const elContoh   = document.getElementById('s_contoh');
+  const elKosakata = document.getElementById('s_kosakata');
+  if (elPola)     elPola.textContent     = polaData.length;
+  if (elContoh)   elContoh.textContent   = totalContoh;
+  if (elKosakata) elKosakata.textContent = kosakata.length;
+
+  // SRS level
+  let srsBaru = 0, srsBelajar = 0, srsMahir = 0;
+  polaData.forEach(pola => {
+    pola.contoh.forEach(contoh => {
+      const key   = getSRSKey(pola.id, contoh.id);
+      const level = srsData[key] ? srsData[key].level : 0;
+      if (level === 0)      srsBaru++;
+      else if (level <= 3)  srsBelajar++;
+      else                  srsMahir++;
+    });
+  });
+  const elBaru    = document.getElementById('s_srs_baru');
+  const elBelajar = document.getElementById('s_srs_belajar');
+  const elMahir   = document.getElementById('s_srs_mahir');
+  if (elBaru)    elBaru.textContent    = srsBaru;
+  if (elBelajar) elBelajar.textContent = srsBelajar;
+  if (elMahir)   elMahir.textContent   = srsMahir;
+
+  // streak
+  const elStreakBesar = document.getElementById('statStreakBesar');
+  if (elStreakBesar) elStreakBesar.textContent = streakData.count || 0;
+  const elStatStreak = document.getElementById('statStreak');
+  if (elStatStreak) elStatStreak.textContent = streakData.count || 0;
+
+  // riwayat kuis
+  const list = document.getElementById('riwayatList');
+  if (list) {
+    if (riwayatKuis.length === 0) {
+      list.innerHTML = '<div class="riwayat-empty">Belum ada riwayat kuis</div>';
+    } else {
+      list.innerHTML = riwayatKuis.map(r => `
+        <div class="riwayat-item">
+          <div>
+            <div style="font-size:14px;font-weight:600;">${r.benar} / ${r.total} benar</div>
+            <div class="riwayat-tgl">${r.tgl} · ${r.jam}</div>
+          </div>
+          <div class="riwayat-skor">${r.persen}%</div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+
+// ══════════════════════════════
+// PENGATURAN
+// ══════════════════════════════
+
+function simpanPengaturan() {
+  localStorage.setItem('manabi_pengaturan', JSON.stringify(pengaturan));
+}
+
+
+
+
+// ── AUDIO ──
+function bunyiBenar() {
+  if (!pengaturan.suara) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523, ctx.currentTime);
+    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+}
+
+function bunyiSalah() {
+  if (!pengaturan.suara) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.frequency.setValueAtTime(150, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+
+
+// ══════════════════════════════
+// SPLASH SCREEN
+// ══════════════════════════════
+function hideSplash() {
+  const splash = document.getElementById('splashScreen');
+  splash.classList.add('hide');
+  setTimeout(() => splash.remove(), 600);
+}
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+muatSemua();
+document.fonts.ready.then(() => setTimeout(hideSplash, 1800));
+</script>
+
+<!-- ══ MODAL EXPORT ══ -->
+<div class="overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-title">Export <span>Data</span></div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:12px;" id="exportCopyMsg">Tekan Salin untuk menyalin ke clipboard.</p>
+    <textarea id="exportText" readonly style="width:100%;height:200px;font-family:monospace;font-size:11px;background:var(--off-white);border:2px solid var(--gray-light);padding:10px;color:var(--black);resize:none;outline:none;line-height:1.4;"></textarea>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-batal" onclick="document.getElementById('exportModal').classList.remove('active')">Tutup</button>
+      <button class="btn-simpan" onclick="salinExport()">📋 Salin</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('Service Worker registered'))
+        .catch(e => console.log('SW error:', e));
+    });
+  }
+</script>
+</body>
+</html>
